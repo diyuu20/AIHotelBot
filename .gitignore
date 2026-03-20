@@ -19,9 +19,11 @@ Scripts/
 .DS_Store
 Thumbs.db
 
-# Optional (recommended)
+# Database
+*.sqlite
+
+# Project data
 uploads/
 dataset/
-*.jpg
-*.png
-*.mp4
+static/checkins/
+temp_checkins/
