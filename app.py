@@ -753,8 +753,22 @@ def view_room(room_number):
     return render_template('view_room.html', room_number=room_number, image_paths=image_paths)
 
 
+# if __name__ == '__main__':
+#     # Create necessary folders on startup
+#     os.makedirs('uploads', exist_ok=True)
+#     os.makedirs('temp_checkins', exist_ok=True)
+#     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
 if __name__ == '__main__':
-    # Create necessary folders on startup
+    import os
+    
+    # Create required folders
     os.makedirs('uploads', exist_ok=True)
     os.makedirs('temp_checkins', exist_ok=True)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    os.makedirs('static/checkins', exist_ok=True)
+
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+
+    
