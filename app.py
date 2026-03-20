@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response, request, redirect, url_for, session, flash
-from face_recognition_module import recognize_person, load_encodings
+# from face_recognition_module import recognize_person, load_encodings
 from face_registration_module import register_guest, add_new_user
 from booking_verifier import find_booking_in_pdf, verify_checkin_time
 from ocr_processor import process_document
@@ -25,6 +25,12 @@ import urllib.parse
 from floor_map_manager import get_floor_room_statuses
 from document_classifier import validate_document_type
 from config import UNRECOGNIZED_DOCUMENT_THRESHOLD
+from flask import Flask, render_template, request, jsonify
+import cv2
+import numpy as np
+import pytesseract
+import pandas as pd
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 
