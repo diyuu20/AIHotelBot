@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Successful</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body onload="speakMessage()">
+    <video id="speaking-video" class="video-background" loop muted playsinline>
+        <source src="{{ url_for('static', filename='videos/speaking_animation.mp4') }}" type="video/mp4">
+    </video>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1 id="message-text">Booking Successful!</h1>
+            <p style="color: white;">Thank you, {{ booking_details['Booking Under Name'] }}. Your booking is confirmed.</p>
+            <p style="color: white;"><strong>Your Booking ID is: {{ booking_details['Booking ID'] }}</strong></p>
+            <p style="color: white;">A confirmation has been sent to your email and mobile number.</p>
+            <br>
+            <a href="{{ url_for('index') }}" class="action-button">Back to Home</a>
+        </div>
+    </div>
+<script>
+    function speakMessage() {
+        const messageText = "Booking Successful! Thank you, {{ booking_details['Booking Under Name'] }}. Your booking is confirmed. Your booking ID is {{ booking_details['Booking ID']|replace('', ' ') }}.";
+        const video = document.getElementById('speaking-video');
+        const utterance = new SpeechSynthesisUtterance(messageText);
+        utterance.onstart = () => { video.style.display = 'block'; video.play(); };
+        utterance.onend = () => { video.style.display = 'none'; video.pause(); };
+        speechSynthesis.speak(utterance);
+    }
+</script>
+</body>
+</html>

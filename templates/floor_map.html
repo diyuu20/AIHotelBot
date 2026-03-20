@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floor {{ floor_number }} Map</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        html, body {
+            height: auto;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body { 
+            background: #000;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .map-container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            overflow-x: auto;
+        }
+
+        .floor-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .floor-title {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .floor-info {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .floor-layout {
+            display: grid;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            min-width: 1200px;
+            width: max-content;
+            margin: 0 auto;
+        }
+
+        .room-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .hallway {
+            background: rgba(255,255,255,0.1);
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: white;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hallway::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .room {
+            width: 200px;
+            height: 220px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .room::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 13px;
+            padding: 2px;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: exclude;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .room:hover::before {
+            opacity: 1;
+        }
+
+        .room:hover {
+            transform: translateY(-5px) scale(1.03);
+        }
+
+        .room.available { 
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #ff0000;
+        }
+
+        .room.available:hover {
+            box-shadow: 0 15px 35px rgba(46, 204, 113, 0.4);
+        }
+
+        .room.booked { 
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .room.booked:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(192, 57, 43, 0.3);
+        }
+
+        .room.wrong-capacity { 
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(149, 165, 166, 0.5);
+        }
+
+        .room.wrong-capacity:hover {
+            box-shadow: 0 15px 35px rgba(127, 140, 141, 0.4);
+        }
+
+        .room-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .room-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .room-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .room-actions { 
+            margin-top: 15px; 
+            display: flex; 
+            gap: 8px; 
+            justify-content: center; 
+            align-items: center;
+            flex-shrink: 0;
+            min-height: 40px;
+        }
+
+        .action-button { 
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 65px;
+            height: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+        }
+
+        .action-button.view { 
+            background: rgba(255,255,255,0.1);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .action-button.view:hover {
+            background: linear-gradient(45deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .action-button.book { 
+            background: linear-gradient(135deg, #ff0000, #b30000);
+            color: white;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .action-button.book:hover {
+            background: linear-gradient(45deg, #e67e22, #f39c12);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.4);
+        }
+
+        .room-status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .room.available .room-status-indicator {
+            background: #ff0000;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+            animation: pulse-available 2s ease-in-out infinite;
+        }
+
+        .room.booked .room-status-indicator {
+            background: #e74c3c;
+        }
+
+        .room.wrong-capacity .room-status-indicator {
+            background: #f39c12;
+        }
+
+        @keyframes pulse-available {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        @media (max-width: 1300px) {
+            .floor-layout {
+                min-width: 1000px;
+            }
+            .room {
+                width: 180px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .floor-layout {
+                min-width: 800px;
+            }
+            .room {
+                width: 140px;
+                height: 180px;
+                padding: 12px;
+            }
+            .room-number {
+                font-size: 1.3rem;
+            }
+            .room-details {
+                font-size: 0.8rem;
+            }
+            .action-button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: 55px;
+                height: 32px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .map-container {
+                padding: 20px 10px;
+            }
+            .floor-title {
+                font-size: 2rem;
+            }
+            .floor-info {
+                font-size: 1rem;
+            }
+            .room-row {
+                gap: 10px;
+            }
+            .room {
+                width: 120px;
+                height: 160px;
+                padding: 10px;
+            }
+            .action-button {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+                min-width: 50px;
+                height: 28px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="map-container">
+        <div class="floor-header">
+            <h1 class="floor-title">Floor {{ floor_number }}</h1>
+            <p class="floor-info">
+                Showing availability for {{ search_details.guests }} guest(s) from {{ search_details.check_in }} to {{ search_details.check_out }}
+            </p>
+        </div>
+
+        <div class="floor-layout">
+            <div class="room-row">
+                {% for room in room_statuses[:5] %}
+                <div class="room {{ 'available' if room.status == 'Available' else 'booked' if room.status == 'Booked' else 'wrong-capacity' }}">
+                    <div class="room-status-indicator"></div>
+                    <div class="room-info">
+                        <div class="room-number">{{ room.room_number }}</div>
+                        <div class="room-details">{{ room.category }}<br>{{ room.capacity }} Guests</div>
+                    </div>
+                    <div class="room-actions">
+                        <a href="{{ url_for('view_room', room_number=room.room_number) }}" target="_blank" class="action-button view">View</a>
+                        {% if room.status != 'Booked' %}
+                        <form action="{{ url_for('booking_confirmation') }}" method="post" style="display: inline;">
+                            <input type="hidden" name="room_number" value="{{ room.room_number }}">
+                            <input type="hidden" name="category" value="{{ room.category }}">
+                            <input type="hidden" name="capacity" value="{{ room.capacity }}">
+                            <input type="hidden" name="price_per_night" value="{{ room.price_per_night }}">
+                            <input type="hidden" name="currency" value="{{ room.currency }}">
+                            <input type="hidden" name="check_in" value="{{ search_details.check_in }}">
+                            <input type="hidden" name="check_out" value="{{ search_details.check_out }}">
+                            <input type="hidden" name="guests" value="{{ search_details.guests }}">
+                            <button type="submit" class="action-button book">Book</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="hallway">HALLWAY</div>
+
+            <div class="room-row">
+                {% for room in room_statuses[5:10] %}
+                <div class="room {{ 'available' if room.status == 'Available' else 'booked' if room.status == 'Booked' else 'wrong-capacity' }}">
+                    <div class="room-status-indicator"></div>
+                    <div class="room-info">
+                        <div class="room-number">{{ room.room_number }}</div>
+                        <div class="room-details">{{ room.category }}<br>{{ room.capacity }} Guests</div>
+                    </div>
+                    <div class="room-actions">
+                        <a href="{{ url_for('view_room', room_number=room.room_number) }}" target="_blank" class="action-button view">View</a>
+                        {% if room.status != 'Booked' %}
+                        <form action="{{ url_for('booking_confirmation') }}" method="post" style="display: inline;">
+                            <input type="hidden" name="room_number" value="{{ room.room_number }}">
+                            <input type="hidden" name="category" value="{{ room.category }}">
+                            <input type="hidden" name="capacity" value="{{ room.capacity }}">
+                            <input type="hidden" name="price_per_night" value="{{ room.price_per_night }}">
+                            <input type="hidden" name="currency" value="{{ room.currency }}">
+                            <input type="hidden" name="check_in" value="{{ search_details.check_in }}">
+                            <input type="hidden" name="check_out" value="{{ search_details.check_out }}">
+                            <input type="hidden" name="guests" value="{{ search_details.guests }}">
+                            <button type="submit" class="action-button book">Book</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = 'Booking...';
+                        submitBtn.disabled = true;
+                        submitBtn.style.opacity = '0.7';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

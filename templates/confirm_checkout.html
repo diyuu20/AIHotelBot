@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Check-Out</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body onload="speakMessage()">
+    <video id="speaking-video" class="video-background" loop muted playsinline>
+        <source src="{{ url_for('static', filename='videos/speaking_animation.mp4') }}" type="video/mp4">
+    </video>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1 id="message-text">Found Check-in for Room {{ checkin_details.allocatedRoom }}. Please confirm your checkout.</h1>
+            <p>Guests: 
+                {% for guest in checkin_details.guests %}
+                    {{ guest.name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+
+            <!-- This is the new warning message -->
+            {% if is_early_checkout %}
+                <p style="color: #f39c12; font-weight: bold; border: 2px solid #f39c12; padding: 10px; border-radius: 5px;">
+                    Warning: You are checking out early. Do you still wish to proceed?
+                </p>
+            {% endif %}
+
+            <form action="{{ url_for('confirm_checkout', booking_id=checkin_details.bookingId) }}" method="post">
+                <button type="submit" class="action-button">Yes, Confirm Check-Out</button>
+                <a href="{{ url_for('index') }}" class="action-button" style="background-color: #c0392b;">No, Cancel</a>
+            </form>
+        </div>
+    </div>
+<script>
+    function speakMessage() {
+        // We combine the main message and the warning for the bot to speak
+        let messageText = document.getElementById('message-text').innerText;
+        const warningElement = document.querySelector('p[style*="color: #f39c12"]');
+        if (warningElement) {
+            messageText += " " + warningElement.innerText;
+        }
+        
+        const video = document.getElementById('speaking-video');
+        const utterance = new SpeechSynthesisUtterance(messageText);
+        utterance.onstart = () => { video.style.display = 'block'; video.play(); };
+        utterance.onend = () => { video.style.display = 'none'; video.pause(); };
+        speechSynthesis.speak(utterance);
+    }
+</script>
+</body>
+</html>

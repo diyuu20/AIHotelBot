@@ -1,0 +1,44 @@
+{
+    "bookingId": "BK84890",
+    "allocatedRoom": "704",
+    "checkinTime": "23/07/2025 18:26:17",
+    "totalGuests": 3,
+    "allGuests": [
+        {
+            "dob": "2025-07-25",
+            "gender": "male",
+            "name": "Mohamed Aqeel Memon",
+            "photo_path": "uploads\\guest_photos\\Mohamed Aqeel Memon_profile.jpg"
+        },
+        {
+            "dob": "2025-07-01",
+            "gender": "female",
+            "name": "Hiba Rajpuriya",
+            "photo_path": "uploads\\guest_photos\\Hiba Rajpuriya_profile.jpg"
+        },
+        {
+            "dob": "2025-07-01",
+            "gender": "female",
+            "name": "Kaashvi",
+            "photo_path": "uploads\\guest_photos\\Kaashvi_profile.jpg"
+        }
+    ],
+    "verifiedGuests": [
+        {
+            "doc_image_path": "uploads\\passport.jpg",
+            "doc_type": "passport",
+            "ocr_data": {
+                "dob": "27/08/2003",
+                "document_number": "U1073661",
+                "gender": "M",
+                "name": "MOHAMED AQEEL MOHAMED RIYAZ MEMON"
+            },
+            "user_data": {
+                "dob": "2025-07-25",
+                "gender": "male",
+                "name": "Mohamed Aqeel Memon",
+                "photo_path": "uploads\\guest_photos\\Mohamed Aqeel Memon_profile.jpg"
+            }
+        }
+    ]
+}

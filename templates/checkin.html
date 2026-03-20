@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-In Complete</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body onload="speakGreeting()">
+
+    <video id="speaking-video" class="video-background" loop muted playsinline>
+        <source src="{{ url_for('static', filename='videos/speaking_animation.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="background-container">
+        <div class="greeting-container">
+            <h1 id="greeting-text">{{ greeting }}</h1>
+        </div>
+    </div>
+
+    <script>
+        function speakGreeting() {
+            const greetingText = document.getElementById('greeting-text').innerText;
+            const video = document.getElementById('speaking-video');
+            
+            // Check if browser supports Speech Synthesis
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(greetingText);
+
+                // When speech starts, show and play the video
+                utterance.onstart = () => {
+                    console.log("Speech started, playing video.");
+                    video.style.display = 'block';
+                    video.play();
+                };
+
+                // When speech ends, hide the video
+                utterance.onend = () => {
+                    console.log("Speech finished, hiding video.");
+                    video.style.display = 'none';
+                    video.pause();
+                };
+                
+                // Speak the text
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support text-to-speech.');
+            }
+        }
+    </script>
+</body>
+</html>

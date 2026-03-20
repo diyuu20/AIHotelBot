@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Room - Luxury Hotel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            color: white;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            color: white;
+            text-shadow: none;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        .search-container {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            border-radius: 25px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, #ff0000, #b30000);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-button:hover {
+            background: linear-gradient(135deg, #ff1a1a, #cc0000);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.4);
+        }
+
+        .search-button:active {
+            transform: translateY(-1px);
+        }
+
+        .search-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .search-button:hover::before {
+            left: 100%;
+        }
+
+        .results-section {
+            width: 100%;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .results-title {
+            text-align: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .floor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .floor-card {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            text-decoration: none;
+            color: white;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .floor-card:hover {
+            transform: translateY(-10px);
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+
+        .floor-card.disabled {
+            background: rgba(127, 140, 141, 0.3);
+            cursor: not-allowed;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .floor-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background-clip: text;
+            color: white;
+        }
+
+        .floor-info {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .availability-badge {
+            display: inline-block;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .availability-badge.low {
+            background: rgba(255, 80, 80, 0.8);
+        }
+
+        .availability-badge.none {
+            background: rgba(120, 120, 120, 0.6);
+        }
+
+        .floor-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(255,255,255,0.1), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .floor-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .search-container {
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .floor-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .floor-card {
+                padding: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .search-container {
+                padding: 1rem;
+                border-radius: 15px;
+            }
+
+            .form-input, .form-select, .search-button {
+                padding: 0.875rem 1rem;
+                font-size: 0.95rem;
+            }
+
+            .floor-number {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* FIX DATE ICON */
+        .form-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
+        /* FIX DROPDOWN COLORS */
+        .form-select option {
+            background: #000;
+            color: white;
+        }
+
+        /* OPTIONAL: RED GLOW */
+        .search-container {
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.15);
+        }
+
+        /* OPTIONAL: CENTER ALIGN */
+        .main-container {
+            justify-content: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="hero-section">
+            <h1 class="hero-title">Luxury Awaits</h1>
+            <p class="hero-subtitle">Discover your perfect room in our premium hotel</p>
+        </div>
+
+        <div class="search-container">
+            <form action="{{ url_for('book_a_room') }}" method="post" class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label class="form-label">Check-in Date</label>
+                    <input type="date" name="check_in" class="form-input" value="{{ search_details.check_in if search_details else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Check-out Date</label>
+                    <input type="date" name="check_out" class="form-input" value="{{ search_details.check_out if search_details else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Number of Guests</label>
+                    <select name="guests" class="form-select" required>
+                        <option value="1" {% if search_details and search_details.guests == 1 %}selected{% endif %}>1 Guest</option>
+                        <option value="2" {% if search_details and search_details.guests == 2 %}selected{% endif %}>2 Guests</option>
+                        <option value="3" {% if search_details and search_details.guests == 3 %}selected{% endif %}>3 Guests</option>
+                        <option value="4" {% if search_details and search_details.guests == 4 %}selected{% endif %}>4 Guests</option>
+                        <option value="5" {% if search_details and search_details.guests == 5 %}selected{% endif %}>5 Guests</option>
+                        <option value="6" {% if search_details and search_details.guests == 6 %}selected{% endif %}>6 Guests</option>
+                        <option value="7" {% if search_details and search_details.guests == 7 %}selected{% endif %}>7 Guests</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="search-button">
+                        🔍 Search Rooms
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Searching for available rooms...</p>
+        </div>
+
+        {% if search_complete %}
+        <div class="results-section">
+            <h2 class="results-title">Available Floors</h2>
+            <div class="floor-grid">
+                {% for floor in floor_availability %}
+                <a href="{{ url_for('floor_map', floor_number=floor.floor_number, check_in=search_details.check_in, check_out=search_details.check_out, guests=search_details.guests) }}" 
+                   class="floor-card {{ 'disabled' if floor.available_rooms == 0 }}">
+                    <div class="floor-number">Floor {{ floor.floor_number }}</div>
+
+                    <div class="availability-badge {{ 'none' if floor.available_rooms == 0 else ('low' if floor.available_rooms <= 2 else '') }}">
+                        {% if floor.available_rooms == 0 %}
+                            Fully Booked
+                        {% elif floor.available_rooms == 1 %}
+                            1 Room Available
+                        {% else %}
+                            {{ floor.available_rooms }} Rooms Available
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+
+        // Set minimum date to today
+        function setMinDates() {
+            const today = new Date().toISOString().split('T')[0];
+            const checkInInput = document.querySelector('input[name="check_in"]');
+            const checkOutInput = document.querySelector('input[name="check_out"]');
+            
+            checkInInput.setAttribute('min', today);
+            checkOutInput.setAttribute('min', today);
+
+            // Update check-out min date when check-in changes
+            checkInInput.addEventListener('change', function() {
+                const checkInDate = new Date(this.value);
+                checkInDate.setDate(checkInDate.getDate() + 1);
+                const minCheckOut = checkInDate.toISOString().split('T')[0];
+                checkOutInput.setAttribute('min', minCheckOut);
+                
+                if (checkOutInput.value && checkOutInput.value <= this.value) {
+                    checkOutInput.value = minCheckOut;
+                }
+            });
+        }
+
+        // Add form validation and loading state
+        function setupFormHandling() {
+            const form = document.getElementById('searchForm');
+            const loading = document.getElementById('loading');
+
+            form.addEventListener('submit', function(e) {
+                const checkIn = new Date(form.check_in.value);
+                const checkOut = new Date(form.check_out.value);
+
+                if (checkOut <= checkIn) {
+                    e.preventDefault();
+                    alert('Check-out date must be after check-in date');
+                    return;
+                }
+
+                loading.style.display = 'block';
+            });
+        }
+
+        // Add hover effects to form inputs
+        function setupInteractiveEffects() {
+            const inputs = document.querySelectorAll('.form-input, .form-select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setMinDates();
+            setupFormHandling();
+            setupInteractiveEffects();
+        });
+
+        // Add smooth scroll for better UX
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.floor-card:not(.disabled)')) {
+                document.body.style.cursor = 'wait';
+                setTimeout(() => {
+                    document.body.style.cursor = 'default';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Guest to Verify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .flash-info { color: #3498db; font-weight: bold; }
+        .flash-success { color: #2ecc71; font-weight: bold; }
+        .flash-error { color: #e74c3c; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1>Guest Identity Verification</h1>
+            
+            <!-- Display flashed messages from the server -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <p class="flash-{{ category }}">{{ message }}</p>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            {% set all_verified = (all_guests|length) == (verified_guest_names|length) %}
+
+            {% if not all_verified %}
+                <p>Please verify each guest one by one.</p>
+            {% else %}
+                <p style="color: #2ecc71; font-weight: bold;">All guests have been verified!</p>
+            {% endif %}
+            
+            <div class="options-container" style="flex-direction: column; align-items: center;">
+
+            {% for guest in all_guests %}
+                {% if guest.name in verified_guest_names %}
+                    <div class="action-button" style="background:#2ecc71;">
+                        ✅ {{ guest.name }} Verified
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('start_guest_verification', booking_id=booking_id, guest_name=guest.name) }}">
+                        <button class="action-button">
+                            VERIFY {{ guest.name | upper }}
+                        </button>
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            </div>
+
+            {% if all_verified and all_guests %}
+                <hr style="border-color: #555; margin: 20px 0;">
+                <a href="{{ url_for('finalize_checkin', booking_id=booking_id) }}" class="action-button" style="width: 100%; padding: 20px; font-size: 20px;">
+                    Finish & Complete Check-in
+                </a>
+            {% endif %}
+
+        </div>
+    </div>
+</body>
+</html>

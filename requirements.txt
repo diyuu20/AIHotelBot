@@ -1,0 +1,37 @@
+# Core Flask dependencies
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Computer Vision and Image Processing
+opencv-python==4.8.1.78
+face-recognition==1.3.0
+numpy==1.24.3
+Pillow==10.0.1
+
+# OCR and Document Processing
+pytesseract==0.3.10
+easyocr==1.7.0
+passporteye==2.2.2 
+python-dateutil==2.8.2
+
+# YOLO and Deep Learning
+ultralytics==8.0.196
+torch==2.0.1
+torchvision==0.15.2
+
+# Data Processing
+pandas==2.0.3
+matplotlib==3.7.2
+
+# Utilities
+# uuid
+# json
+# base64
+# os
+# time
+# datetime
+# random
+# warnings
+
+
+

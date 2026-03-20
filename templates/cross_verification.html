@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .guest-card { background-color: rgba(255,255,255,0.1); border: 1px solid #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .verification-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .data-mismatch { border: 2px solid red !important; color: red !important; }
+        .data-mismatch::placeholder { color: #ff9999 !important; }
+        .data-match { border: 2px solid #4CAF50 !important; }
+        .verification-grid h4 { margin-bottom: 5px; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <h1>Cross-Verification Results</h1>
+            <p>Please review the extracted information and correct any mismatches.</p>
+            
+            <!-- FIX: This form now correctly submits to the final report generation route -->
+            <form action="{{ url_for('complete_checkin_and_report', booking_id=booking_id) }}" method="post">
+                {% for data in verification_data %}
+                <div class="guest-card">
+                    <h3>Verification for: {{ data.user_data.name }}</h3>
+                    {% if data.ocr_data.error %}
+                        <p style="color: red;"><strong>Error:</strong> {{ data.ocr_data.error }}</p>
+                    {% else %}
+                    <div class="verification-grid">
+                        <div>
+                            <h4>Your Entered Data</h4>
+                            <input type="text" value="{{ data.user_data.name }}" readonly>
+                            <input type="text" value="{{ data.user_data.dob }}" readonly>
+                        </div>
+                        <div>
+                            <h4>Data from Document (Editable)</h4>
+                            {% set name_match = data.user_data.name.lower() in data.ocr_data.name.lower() %}
+                            {% set dob_match = data.user_data.dob == data.ocr_data.dob %}
+                            
+                            <!-- The name attribute is now unique per guest -->
+                            <input type="text" name="ocr_name_{{ data.user_data.name }}" value="{{ data.ocr_data.name }}" class="{{ 'data-match' if name_match else 'data-mismatch' }}">
+                            <input type="text" name="ocr_dob_{{ data.user_data.name }}" value="{{ data.ocr_data.dob }}" class="{{ 'data-match' if dob_match else 'data-mismatch' }}">
+                            
+                            <!-- Display Document Number -->
+                            <input type="text" value="Doc No: {{ data.ocr_data.document_number }}" readonly>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="action-button" style="width: 100%; padding: 20px; font-size: 20px;">Confirm & Complete Check-in</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

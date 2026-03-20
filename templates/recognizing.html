@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recognizing Face...</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .video-container { text-align: center; }
+        .video-container video { border: 5px solid #4CAF50; border-radius: 10px; width: 60%; max-width: 480px; }
+        #status-message { margin-top: 15px; font-size: 1.2em; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="video-container">
+        <h1>Please Look at the Camera</h1>
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <p id="status-message">Scanning in <span id="countdown">5</span>...</p>
+    </div>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const countdownSpan = document.getElementById('countdown');
+    let stream;
+
+    async function setupCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        } catch (err) {
+            console.error("Camera access error:", err);
+            document.getElementById('status-message').innerText = "Could not access camera. Please check permissions.";
+        }
+    }
+
+    function startCountdown() {
+        let count = 5;
+        const interval = setInterval(() => {
+            count--;
+            countdownSpan.innerText = count;
+            if (count <= 0) {
+                clearInterval(interval);
+                captureAndSend();
+            }
+        }, 1000);
+    }
+
+    function captureAndSend() {
+        document.getElementById('status-message').innerText = "Processing...";
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+        // Stop the camera
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+
+        // Send the image to the server
+        fetch("{{ url_for('run_recognition') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image: imageDataUrl })
+        })
+        .then(response => {
+            // The server will respond with a new HTML page, so we replace the current one
+            return response.text();
+        })
+        .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('status-message').innerText = "An error occurred. Please try again.";
+        });
+    }
+
+    window.onload = () => {
+        setupCamera();
+        startCountdown();
+    };
+</script>
+</body>
+</html>

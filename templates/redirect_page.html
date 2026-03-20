@@ -1,0 +1,100 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Please Wait...</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body onload="speakAndRedirect()">
+    <video id="speaking-video" class="video-background" loop muted playsinline>
+        <source src="{{ url_for('static', filename='videos/speaking_animation.mp4') }}" type="video/mp4">
+    </video>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1 id="message-text">{{ message }}</h1>
+        </div>
+    </div>
+    <script>
+        function speakAndRedirect() {
+            const messageText = document.getElementById('message-text').innerText;
+            const video = document.getElementById('speaking-video');
+            const utterance = new SpeechSynthesisUtterance(messageText);
+
+            // Show video when speech starts
+            utterance.onstart = () => {
+                video.style.display = 'block';
+                video.play();
+            };
+
+            // **KEY ACTION**: Redirect when speech ends
+            utterance.onend = () => {
+                video.style.display = 'none';
+                video.pause();
+                // Redirect to the URL provided by the Flask route
+                window.location.href = "{{ redirect_url }}";
+            };
+
+            speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Please Wait...</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body onload="speakAndRedirect()">
+    <video id="speaking-video" class="video-background" loop muted playsinline>
+        <source src="{{ url_for('static', filename='videos/speaking_animation.mp4') }}" type="video/mp4">
+    </video>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1 id="message-text">{{ message }}</h1>
+        </div>
+    </div>
+    <script>
+        function speakAndRedirect() {
+            const messageText = document.getElementById('message-text').innerText;
+            const video = document.getElementById('speaking-video');
+            const utterance = new SpeechSynthesisUtterance(messageText);
+
+            // Resume trick for Android
+            speechSynthesis.cancel();
+            speechSynthesis.resume();
+
+            utterance.onstart = () => {
+                video.style.display = 'block';
+                video.play();
+            };
+
+            utterance.onend = () => {
+                video.style.display = 'none';
+                video.pause();
+                window.location.href = "{{ redirect_url }}";
+            };
+
+            try {
+                speechSynthesis.speak(utterance);
+            } catch (e) {
+                // fallback if speak() throws
+                window.location.href = "{{ redirect_url }}";
+            }
+
+            // Fallback redirect in case speech never starts/ends (Android issue)
+            setTimeout(() => {
+                if (!speechSynthesis.speaking) {
+                    window.location.href = "{{ redirect_url }}";
+                }
+            }, 7000); // adjust time to your message length
+        }
+    </script>
+</body>
+</html>

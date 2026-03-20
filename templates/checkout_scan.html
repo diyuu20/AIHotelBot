@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-Out Scan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .video-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 540px; 
+            margin: 0 auto; 
+            text-align: center; 
+        }
+        .video-container video { 
+            border: 5px solid #c0392b; /* Red border for checkout */
+            border-radius: 10px; 
+            width: 100%; 
+            max-width: 480px; 
+        }
+        #status-message { 
+            margin-top: 15px; 
+            font-size: 1.2em; 
+        }
+        /* Face outline styles */
+        .face-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .face-overlay .outline {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 280px;
+            height: 380px;
+            transform: translate(-50%, -50%);
+            border: 4px solid #c0392b; /* Red outline */
+            border-radius: 50%;
+            box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="video-container">
+        <h1>Please Look at the Camera to Check Out</h1>
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <div class="face-overlay"><div class="outline"></div></div>
+        <p id="status-message">Scanning in <span id="countdown">5</span>...</p>
+    </div>
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const countdownSpan = document.getElementById('countdown');
+    let stream;
+
+    async function setupCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        } catch (err) {
+            document.getElementById('status-message').innerText = "Could not access camera.";
+        }
+    }
+
+    function startCountdown() {
+        let count = 5;
+        const interval = setInterval(() => {
+            count--;
+            countdownSpan.innerText = count;
+            if (count <= 0) {
+                clearInterval(interval);
+                captureAndSend();
+            }
+        }, 1000);
+    }
+
+    function captureAndSend() {
+        document.getElementById('status-message').innerText = "Verifying...";
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        if (stream) stream.getTracks().forEach(track => track.stop());
+
+        fetch("{{ url_for('run_checkout_recognition') }}", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ image: imageDataUrl })
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+        });
+    }
+
+    window.onload = () => {
+        setupCamera();
+        startCountdown();
+    };
+</script>
+</body>
+</html>

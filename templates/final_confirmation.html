@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Confirmation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .details-card { 
+            background-color: rgba(255,255,255,0.1); 
+            border: 1px solid #fff; 
+            border-radius: 10px; 
+            padding: 20px; 
+            margin-bottom: 20px;
+            color: white;
+            text-align: left;
+        }
+        .details-card h3 { margin-top: 0; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container" style="max-width: 800px;">
+            <h1>Please Confirm Your Check-in Details</h1>
+            
+            <div class="details-card">
+                <h3>Booking Summary</h3>
+                <p><strong>Booking ID:</strong> {{ report_data.booking_id }}</p>
+                <p><strong>Check-in Time:</strong> {{ report_data.checkin_time }}</p>
+            </div>
+
+      
+
+            <form action="{{ url_for('confirm_and_complete_checkin', booking_id=booking_id) }}" method="post">
+                <button type="submit" class="action-button" style="width: 100%; padding: 20px; font-size: 20px;">
+                    Confirm & Complete Check-in
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

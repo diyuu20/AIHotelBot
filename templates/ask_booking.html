@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body onload="speakQuestion()">
+    <video id="speaking-video" class="video-background" loop muted playsinline>
+        <source src="{{ url_for('static', filename='videos/speaking_animation.mp4') }}" type="video/mp4">
+    </video>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1 id="question-text">{{ question }}</h1>
+            <div class="options-container">
+                <a href="{{ url_for('scan_qr_page') }}" class="action-button">Yes</a>
+                <a href="{{ url_for('ask_register_page') }}" class="action-button">No</a>            </div>
+        </div>
+    </div>
+    <script>
+        function speakQuestion() {
+            const questionText = document.getElementById('question-text').innerText;
+            const video = document.getElementById('speaking-video');
+            const utterance = new SpeechSynthesisUtterance(questionText);
+            utterance.onstart = () => { video.style.display = 'block'; video.play(); };
+            utterance.onend = () => { video.style.display = 'none'; video.pause(); };
+            speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>

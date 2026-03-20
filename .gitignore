@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+hotelbot/
+venv/
+env/
+Lib/
+Scripts/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional (recommended)
+uploads/
+dataset/
+*.jpg
+*.png
+*.mp4

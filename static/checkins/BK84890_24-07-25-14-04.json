@@ -1,0 +1,41 @@
+{
+    "bookingId": "BK84890",
+    "allocatedRoom": "804",
+    "checkinTime": "24/07/2025 14:04:06",
+    "totalGuests": 3,
+    "allGuests": [
+        {
+            "dob": "1998-11-03",
+            "gender": "male",
+            "name": "ABHISHEK",
+            "photo_path": "pre_existing"
+        },
+        {
+            "dob": "1998-03-12",
+            "gender": "male",
+            "name": "AD",
+            "photo_path": "pre_existing"
+        },
+        {
+            "dob": "1998-12-23",
+            "gender": "male",
+            "name": "ABHISHEJ",
+            "photo_path": "pre_existing"
+        }
+    ],
+    "verifiedGuests": [
+        {
+            "doc_image_path": "uploads\\doc_ABHISHEK_86081796-85b0-4e63-b598-4de48acbdd98.jpg",
+            "doc_type": "aadhaar",
+            "ocr_data": {
+                "error": "Could not process Aadhaar card."
+            },
+            "user_data": {
+                "dob": "1998-11-03",
+                "gender": "male",
+                "name": "ABHISHEK",
+                "photo_path": "pre_existing"
+            }
+        }
+    ]
+}

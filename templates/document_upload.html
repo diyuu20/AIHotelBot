@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .guest-card { background-color: rgba(255,255,255,0.1); border: 1px solid #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .guest-card h3, .guest-card h4 { margin-top: 0; color: white; }
+        .photo-area { display: flex; align-items: center; gap: 15px; margin-top: 10px; flex-wrap: wrap; }
+        .photo-area video { width: 200px; height: 150px; border-radius: 5px; background-color: #333; }
+        .photo-area img { width: 200px; height: 150px; border-radius: 5px; border: 2px dashed #ccc; object-fit: cover; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <h1>New Guest Verification</h1>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}" style="
+                            padding: 15px;
+                            margin: 10px 0;
+                            border-radius: 5px;
+                            font-weight: bold;
+                            text-align: center;
+                            {% if category == 'error' %}
+                                background-color: rgba(255, 0, 0, 0.2);
+                                border: 2px solid #ff0000;
+                                color: #ff0000;
+                            {% elif category == 'success' %}
+                                background-color: rgba(0, 255, 0, 0.2);
+                                border: 2px solid #00ff00;
+                                color: #00ff00;
+                            {% elif category == 'info' %}
+                                background-color: rgba(0, 0, 255, 0.2);
+                                border: 2px solid #0000ff;
+                                color: #0000ff;
+                            {% else %}
+                                background-color: rgba(255, 255, 0, 0.2);
+                                border: 2px solid #ffff00;
+                                color: #ffff00;
+                            {% endif %}
+                        ">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- FIX: The form action now correctly includes the guest_name -->
+            <form action="{{ url_for('document_verification', booking_id=booking_id, guest_name=guest_name) }}" method="post">
+                {% for guest in selected_guests %}
+                <div class="guest-card">
+                    <h3>{{ guest.name }}</h3>
+                    
+                    <!-- Section for Guest Face Capture -->
+                    <h4>Step 1: Capture Guest's Photo</h4>
+                    <div class="photo-area">
+                        <video id="video_guest_{{ guest.name }}" autoplay playsinline muted></video>
+                        <canvas id="canvas_guest_{{ guest.name }}" style="display:none;"></canvas>
+                        <img id="photo_preview_guest_{{ guest.name }}" src="https://placehold.co/200x150/333/FFF?text=Guest+Photo">
+                        <input type="hidden" id="guest_photo_data_{{ guest.name }}" name="guest_photo_data_{{ guest.name }}">
+                        <div>
+                            <button type="button" class="action-button" onclick="startCamera('guest', '{{ guest.name }}')">Start Camera</button>
+                            <button type="button" class="action-button" onclick="capturePhoto('guest', '{{ guest.name }}')">Capture Photo</button>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: #555; margin: 20px 0;">
+
+                    <!-- Section for Document Capture -->
+                    <h4>Step 2: Provide Government Document</h4>
+                    <div class="register-form">
+                        <select name="doctype_{{ guest.name }}" required id="doctype_{{ guest.name }}" onchange="updateDocumentInstructions('{{ guest.name }}')">
+                            <option value="" disabled selected>Select Document Type</option>
+                            <option value="aadhaar">Aadhaar Card</option>
+                            <option value="passport">Passport</option>
+                            <option value="driving_licence">Driving Licence</option>
+                        </select>
+                        <div id="doc_instructions_{{ guest.name }}" class="doc-instructions" style="display: none; background-color: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin: 10px 0; color: white; font-size: 14px;">
+                            <strong>Instructions:</strong> <span id="instruction_text_{{ guest.name }}"></span>
+                            <br><br><strong>Note:</strong> The system requires 90% confidence for document validation. Please ensure your photo is clear and well-lit.
+                        </div>
+                        <div class="photo-area">
+                            <video id="video_doc_{{ guest.name }}" autoplay playsinline muted></video>
+                            <canvas id="canvas_doc_{{ guest.name }}" style="display:none;"></canvas>
+                            <img id="photo_preview_doc_{{ guest.name }}" src="https://placehold.co/200x150/333/FFF?text=Document+Photo">
+                            <input type="hidden" id="doc_photo_data_{{ guest.name }}" name="doc_photo_data_{{ guest.name }}">
+                            <div>
+                                <button type="button" class="action-button" onclick="startCamera('doc', '{{ guest.name }}')">Start Doc Camera</button>
+                                <button type="button" class="action-button" onclick="capturePhoto('doc', '{{ guest.name }}')">Capture Doc Photo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <button type="submit" class="action-button" style="width: 100%; padding: 20px; font-size: 20px;">Submit for Verification</button>
+            </form>
+            
+            <!-- Document Validation Status -->
+            <div id="validation_status" style="display: none; margin-top: 20px; padding: 15px; border-radius: 5px; text-align: center;">
+                <div id="validation_message" style="font-weight: bold; font-size: 16px;"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let streams = {};
+
+    async function startCamera(type, guestName) {
+        const streamKey = `${type}_${guestName}`;
+        if (streams[streamKey]) {
+            streams[streamKey].getTracks().forEach(track => track.stop());
+        }
+        const video = document.getElementById(`video_${type}_${guestName}`);
+        try {
+            const facingMode = (type === 'doc') ? 'environment' : 'user';
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+            video.srcObject = stream;
+            streams[streamKey] = stream;
+        } catch (err) {
+            console.error(`Error accessing camera for ${streamKey}:`, err);
+            alert('Could not access the camera. Please check permissions.');
+        }
+    }
+
+    function capturePhoto(type, guestName) {
+        const video = document.getElementById(`video_${type}_${guestName}`);
+        if (!video.srcObject) {
+            alert('Please start the camera first.');
+            return;
+        }
+        const canvas = document.getElementById(`canvas_${type}_${guestName}`);
+        const photoPreview = document.getElementById(`photo_preview_${type}_${guestName}`);
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        photoPreview.src = dataUrl;
+        
+        if (type === 'guest') {
+            document.getElementById(`guest_photo_data_${guestName}`).value = dataUrl;
+        } else {
+            document.getElementById(`doc_photo_data_${guestName}`).value = dataUrl;
+        }
+
+        const streamKey = `${type}_${guestName}`;
+        if (streams[streamKey]) {
+            streams[streamKey].getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    }
+
+    window.addEventListener('beforeunload', () => {
+        Object.values(streams).forEach(stream => {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+        });
+    });
+
+    // Document type instructions
+    function updateDocumentInstructions(guestName) {
+        const docType = document.getElementById(`doctype_${guestName}`).value;
+        const instructionsDiv = document.getElementById(`doc_instructions_${guestName}`);
+        const instructionText = document.getElementById(`instruction_text_${guestName}`);
+        
+        const instructions = {
+            'aadhaar': 'Please capture a clear photo of your Aadhaar card (front or back). Make sure the text is clearly visible, the document fills the frame, and the image is well-lit for high accuracy.',
+            'passport': 'Please capture a clear photo of your passport. Ensure the MRZ (Machine Readable Zone) at the bottom is visible, the document is well-lit, and all text is clearly readable.',
+            'driving_licence': 'Please capture a clear photo of your driving licence (front or back). Make sure all text is clearly readable, the document is not blurry, and the image is well-lit.'
+        };
+        
+        if (docType && instructions[docType]) {
+            instructionText.textContent = instructions[docType];
+            instructionsDiv.style.display = 'block';
+        } else {
+            instructionsDiv.style.display = 'none';
+        }
+    }
+
+    // Show validation status
+    function showValidationStatus(message, isSuccess) {
+        const statusDiv = document.getElementById('validation_status');
+        const messageDiv = document.getElementById('validation_message');
+        
+        messageDiv.textContent = message;
+        statusDiv.style.display = 'block';
+        
+        if (isSuccess) {
+            statusDiv.style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
+            statusDiv.style.border = '2px solid #00ff00';
+            statusDiv.style.color = '#00ff00';
+        } else {
+            statusDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+            statusDiv.style.border = '2px solid #ff0000';
+            statusDiv.style.color = '#ff0000';
+        }
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    // Auto-hide flash messages after 8 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.transition = 'opacity 0.5s ease-out';
+                message.style.opacity = '0';
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 500);
+            }, 8000); // Hide after 8 seconds
+        });
+    });
+</script>
+</body>
+</html>

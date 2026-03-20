@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+<div class="background-container">
+    <div class="interaction-container" style="max-width:800px;">
+
+        <h1>
+            Booking Found for {{ booking.booking_under_name }}
+        </h1>
+
+        <div style="
+            text-align:left;
+            margin:20px 0;
+            padding:20px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.05);
+            line-height:1.8;
+        ">
+
+            <p><strong>Room:</strong> {{ booking.alloted_room }}</p>
+            <p><strong>Guests:</strong> {{ booking.num_people }}</p>
+
+            <p><strong>Check-in:</strong> {{ booking.check_in }}</p>
+            <p><strong>Check-out:</strong> {{ booking.check_out }}</p>
+
+            <p><strong>Room Type:</strong> {{ booking.type_of_room }}</p>
+            <p><strong>Room View:</strong> {{ booking.room_facing }}</p>
+
+            <p><strong>Meal Plan:</strong> {{ booking.type_of_plan }}</p>
+            <p><strong>Special Request:</strong> {{ booking.special_request }}</p>
+
+        </div>
+
+        <form action="{{ url_for('guest_details_form', booking_id=booking.booking_id) }}">
+            <button class="action-button" style="width:100%; padding:20px; font-size:18px;">
+                CONFIRM DETAILS & ADD GUESTS
+            </button>
+        </form>
+
+    </div>
+</div>
+</body>
+</html>

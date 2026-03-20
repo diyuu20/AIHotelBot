@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Booking QR Code</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- jsQR Library from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        #video-container { text-align: center; }
+        #output-message { margin-top: 10px; font-weight: bold; }
+        #loading-message { display: none; }
+        canvas { display: none; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="video-container" id="video-container">
+        <h1>Please Scan Your Booking QR Code</h1>
+        <div id="loading-message">🎥 Unable to access video stream. Please ensure you have a webcam enabled.</div>
+        <video id="video" playsinline autoplay muted style="width: 60%; max-width: 400px; border-radius: 10px;"></video>
+        <canvas id="canvas"></canvas>
+        <div id="output-message"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById("video");
+        const canvasElement = document.getElementById("canvas");
+        const canvas = canvasElement.getContext("2d");
+        const loadingMessage = document.getElementById("loading-message");
+        const outputMessage = document.getElementById("output-message");
+        let stream;
+
+        function drawLine(begin, end, color) {
+            canvas.beginPath();
+            canvas.moveTo(begin.x, begin.y);
+            canvas.lineTo(end.x, end.y);
+            canvas.lineWidth = 4;
+            canvas.strokeStyle = color;
+            canvas.stroke();
+        }
+
+        // Use facingMode: environment to attempt to use the rear camera on mobile devices
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(s) {
+            stream = s;
+            video.srcObject = stream;
+            video.setAttribute("playsinline", true); // Required to work on iOS
+            video.play();
+            requestAnimationFrame(tick);
+        }).catch(function(err) {
+            console.error("Camera Error:", err);
+            loadingMessage.style.display = 'block';
+        });
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                loadingMessage.style.display = 'none';
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    drawLine(code.location.topLeftCorner, code.location.topRightCorner, "#FF3B58");
+                    drawLine(code.location.topRightCorner, code.location.bottomRightCorner, "#FF3B58");
+                    drawLine(code.location.bottomRightCorner, code.location.bottomLeftCorner, "#FF3B58");
+                    drawLine(code.location.bottomLeftCorner, code.location.topLeftCorner, "#FF3B58");
+                    
+                    outputMessage.innerText = "QR Code Detected! Verifying...";
+                    
+                    // Stop the camera stream
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Redirect to the verification URL
+                    window.location.href = `/verify_booking/${code.data}`;
+                    return; // Exit the loop
+                } else {
+                    outputMessage.innerText = "Searching for QR Code...";
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+:root {
+    --theme-bg: #050505;
+    --theme-surface: rgba(18, 18, 18, 0.92);
+    --theme-surface-soft: rgba(255, 255, 255, 0.06);
+    --theme-surface-strong: rgba(255, 255, 255, 0.1);
+    --theme-border: rgba(255, 255, 255, 0.14);
+    --theme-text: #ffffff;
+    --theme-text-muted: rgba(255, 255, 255, 0.72);
+    --theme-red: #c1121f;
+    --theme-red-strong: #e01e37;
+    --theme-red-dark: #8f0b17;
+    --theme-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+html,
+body {
+    background:
+        radial-gradient(circle at top, rgba(193, 18, 31, 0.18), transparent 34%),
+        linear-gradient(180deg, #0f0f0f 0%, #050505 55%, #000000 100%) !important;
+    color: var(--theme-text) !important;
+}
+
+body {
+    scrollbar-color: var(--theme-red) #111;
+}
+
+::selection {
+    background: var(--theme-red);
+    color: #fff;
+}
+
+a,
+a:visited {
+    color: var(--theme-text);
+}
+
+.background-container::before {
+    background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.52) 0%, rgba(0, 0, 0, 0.84) 100%),
+        radial-gradient(circle at top, rgba(193, 18, 31, 0.18), transparent 35%) !important;
+}
+
+.greeting-container,
+.button-container,
+.interaction-container,
+.search-container,
+.floor-card,
+.map-container,
+.guest-card,
+.details-card {
+    background: linear-gradient(180deg, rgba(20, 20, 20, 0.96), rgba(8, 8, 8, 0.92)) !important;
+    border: 1px solid rgba(193, 18, 31, 0.35) !important;
+    box-shadow: var(--theme-shadow) !important;
+    color: var(--theme-text) !important;
+}
+
+.hero-title,
+.floor-number {
+    background: linear-gradient(180deg, #ffffff 0%, #ffb3ba 100%) !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle,
+.results-title,
+.floor-info,
+.form-label,
+.status-text,
+.room-details,
+p,
+label,
+li,
+strong,
+span {
+    color: var(--theme-text-muted);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.floor-title,
+.room-number {
+    color: var(--theme-text) !important;
+}
+
+.action-button,
+.search-button,
+button,
+input[type="submit"],
+input[type="button"] {
+    background: linear-gradient(135deg, var(--theme-red) 0%, var(--theme-red-strong) 100%) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 12px 28px rgba(193, 18, 31, 0.35) !important;
+}
+
+.action-button:hover,
+.search-button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+    background: linear-gradient(135deg, var(--theme-red-strong) 0%, #ff304b 100%) !important;
+    box-shadow: 0 18px 36px rgba(193, 18, 31, 0.42) !important;
+}
+
+.action-button.secondary,
+.action-button.view,
+.action-button.book {
+    background: linear-gradient(135deg, #111111 0%, var(--theme-red) 100%) !important;
+    color: #fff !important;
+}
+
+.register-form input,
+.register-form select,
+.form-input,
+.form-select,
+input[type="text"],
+input[type="date"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+select,
+textarea {
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #111 !important;
+    border: 2px solid transparent !important;
+    box-shadow: none !important;
+}
+
+.register-form input:focus,
+.register-form select:focus,
+.form-input:focus,
+.form-select:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--theme-red) !important;
+    box-shadow: 0 0 0 4px rgba(193, 18, 31, 0.18) !important;
+}
+
+.register-form input::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: #666 !important;
+}
+
+.register-form select option,
+option {
+    background: #ffffff;
+    color: #111111;
+}
+
+.video-container {
+    background:
+        radial-gradient(circle at top, rgba(193, 18, 31, 0.16), transparent 32%),
+        linear-gradient(180deg, #131313 0%, #050505 100%) !important;
+}
+
+.video-container img,
+.video-container video,
+.photo-area video,
+.photo-area img,
+.gallery-item img {
+    border-color: var(--theme-red) !important;
+    box-shadow: 0 18px 32px rgba(0, 0, 0, 0.45) !important;
+}
+
+.particle {
+    background: rgba(255, 255, 255, 0.22) !important;
+}
+
+.spinner,
+.loading::after {
+    border-top-color: var(--theme-red) !important;
+}
+
+.availability-badge,
+.availability-badge.low,
+.availability-badge.none {
+    background: var(--theme-red) !important;
+    color: #fff !important;
+}
+
+.hallway {
+    background: linear-gradient(90deg, #f5f5f5 0%, #d8d8d8 50%, #f5f5f5 100%) !important;
+    color: #111 !important;
+}
+
+.room.available,
+.room.booked,
+.room.wrong-capacity {
+    background: linear-gradient(180deg, rgba(26, 26, 26, 0.98), rgba(10, 10, 10, 0.98)) !important;
+    border-color: rgba(193, 18, 31, 0.45) !important;
+}
+
+.room.available:hover,
+.room.booked:hover,
+.room.wrong-capacity:hover {
+    box-shadow: 0 18px 34px rgba(193, 18, 31, 0.24) !important;
+}
+
+.room-status-indicator,
+.status-dot {
+    background: var(--theme-red) !important;
+    box-shadow: 0 0 14px rgba(193, 18, 31, 0.55) !important;
+}
+
+.data-match {
+    border-color: var(--theme-red) !important;
+}
+
+.data-mismatch,
+.flash-error {
+    color: #ff8f99 !important;
+    border-color: var(--theme-red-strong) !important;
+}
+
+.flash-info,
+.flash-success {
+    color: #ffb3ba !important;
+}
+
+#status-message,
+#output-message,
+#loading-message {
+    color: var(--theme-text) !important;
+}

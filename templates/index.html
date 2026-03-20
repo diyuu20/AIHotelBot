@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invenco AI Hotelbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+
+        <div class="interaction-container">
+            
+            <!-- ✅ ADD THIS TITLE -->
+            <h1>INVENCO AI HOTELBOT</h1>
+            <p>Your intelligent hotel assistant</p>
+
+            <div class="options-container">
+
+                <!-- ✅ ORDER CHANGED -->
+                <a href="{{ url_for('checkin') }}" class="action-button">Check-In</a>
+
+                <a href="{{ url_for('checkout_face_scan') }}" class="action-button">Check-Out</a>
+
+                <a href="{{ url_for('book_a_room') }}" class="action-button">Book Room</a>
+
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>

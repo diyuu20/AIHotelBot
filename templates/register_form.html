@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New User Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1>Please Enter Your Details</h1>
+            <form action="{{ url_for('register') }}" method="post" class="register-form">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="text" name="dob" placeholder="Date of Birth (YYYY-MM-DD)" onfocus="(this.type='date')" onblur="(this.type='text')">
+                <select name="gender">
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+                <button type="submit" class="action-button">Proceed to Photo Capture</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

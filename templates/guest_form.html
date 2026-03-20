@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .guest-card { background-color: rgba(255,255,255,0.1); border: 1px solid #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .guest-card h3 { margin-top: 0; }
+        .photo-area { display: flex; align-items: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+        .photo-area video { width: 150px; height: 112px; border-radius: 5px; background-color: #333; }
+        .photo-area img { width: 150px; height: 112px; border-radius: 5px; border: 2px dashed #ccc; object-fit: cover; }
+        .photo-area button { padding: 10px 15px; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <h1>Please Provide Details for All Guests</h1>
+            <form id="guest-details-form" action="{{ url_for('submit_guest_details', booking_id=booking_id) }}" method="post">
+                <input type="hidden" name="num_people" value="{{ num_people }}">
+                
+                {% for i in range(1, num_people + 1) %}
+                <div class="guest-card">
+                    <h3>Guest {{ i }}</h3>
+                    <div class="register-form">
+                        <input type="text" name="name_{{ i }}" placeholder="Name (as per Aadhaar/Passport)" required>
+                        <input type="text" name="dob_{{ i }}" placeholder="Date of Birth" onfocus="(this.type='date')" required>
+                        <select name="gender_{{ i }}" required>
+                            <option value="" disabled selected>Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="photo-area">
+                            <video id="video_{{ i }}" autoplay playsinline></video>
+                            <canvas id="canvas_{{ i }}" style="display:none;"></canvas>
+                            <img id="photo_preview_{{ i }}" src="https://placehold.co/150x112/333/FFF?text=Photo">
+                            <input type="hidden" id="photo_data_{{ i }}" name="photo_{{ i }}">
+                            <button type="button" class="action-button" onclick="startCamera({{ i }})">Start Camera</button>
+                            <button type="button" class="action-button" onclick="capturePhoto({{ i }})">Capture</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <button type="submit" class="action-button" style="width: 100%; padding: 20px; font-size: 20px;">Submit All Details</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    let streams = {};
+
+    async function startCamera(guestIndex) {
+        if (streams[guestIndex]) {
+            streams[guestIndex].getTracks().forEach(track => track.stop());
+        }
+        const video = document.getElementById(`video_${guestIndex}`);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            streams[guestIndex] = stream;
+        } catch (err) {
+            console.error(`Error accessing camera for guest ${guestIndex}:`, err);
+            alert('Could not access the camera. Please check permissions.');
+        }
+    }
+
+    function capturePhoto(guestIndex) {
+        const video = document.getElementById(`video_${guestIndex}`);
+        if (!video.srcObject) {
+            alert('Please start the camera first.');
+            return;
+        }
+        const canvas = document.getElementById(`canvas_${guestIndex}`);
+        const photoPreview = document.getElementById(`photo_preview_${guestIndex}`);
+        const photoDataInput = document.getElementById(`photo_data_${guestIndex}`);
+
+        // --- FIX: Resize the image before converting to base64 ---
+        const MAX_WIDTH = 800; // Set a maximum width for the image
+        const scale = MAX_WIDTH / video.videoWidth;
+        canvas.width = MAX_WIDTH;
+        canvas.height = video.videoHeight * scale;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert the resized canvas to a JPEG data URL with 85% quality
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        
+        photoPreview.src = dataUrl;
+        photoDataInput.value = dataUrl;
+
+        // Stop the camera stream after capturing
+        if (streams[guestIndex]) {
+            streams[guestIndex].getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    }
+    
+    // Stop all cameras when the user leaves the page
+    window.addEventListener('beforeunload', () => {
+        Object.values(streams).forEach(stream => {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+        });
+    });
+</script>
+</body>
+</html>

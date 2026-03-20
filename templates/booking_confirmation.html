@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Your Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container" style="max-width: 600px;">
+            <h1>Review Your Booking</h1>
+            <div style="text-align: left; margin-bottom: 20px; color: white;">
+                <h3>Room {{ room.room_number }} ({{ room.category }})</h3>
+                <p><strong>Check-in:</strong> {{ search.check_in }}</p>
+                <p><strong>Check-out:</strong> {{ search.check_out }}</p>
+                <p><strong>Guests:</strong> {{ search.guests }}</p>
+                <p><strong>Price:</strong> {{ room.price_per_night }} {{ room.currency }} / night</p>
+            </div>
+            
+            <form action="{{ url_for('process_booking') }}" method="post" class="register-form">
+                <!-- Hidden fields to pass data to the final step -->
+                <input type="hidden" name="room_number" value="{{ room.room_number }}">
+                <input type="hidden" name="check_in" value="{{ search.check_in }}">
+                <input type="hidden" name="check_out" value="{{ search.check_out }}">
+                <input type="hidden" name="guests" value="{{ search.guests }}">
+                
+                <!-- User input fields -->
+                <input type="text" name="booking_name" placeholder="Full Name for Booking" required>
+                <input type="tel" name="mobile_number" placeholder="Mobile Number" required>
+                <input type="email" name="email_id" placeholder="Email ID" required>
+                
+                <button type="submit" class="action-button" style="width: 100%; padding: 20px; font-size: 20px;">Pay & Book Now</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

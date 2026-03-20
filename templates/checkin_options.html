@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check-In Options</title>
+
+    <!-- ✅ LINK YOUR CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+
+    <style>
+        .center-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+
+            /* 🔥 DARK GLASS EFFECT */
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+
+            /* 🔴 RED BORDER GLOW */
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: block;
+            width: 60%;
+            margin: 15px auto;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+
+            /* 🔴 RED BUTTON */
+            background: linear-gradient(135deg, #c1121f, #e01e37);
+            color: white;
+
+            box-shadow: 0 6px 20px rgba(193, 18, 31, 0.4);
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(193, 18, 31, 0.6);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="background-container">
+
+    <div class="center-box">
+        <h2>Face not detected. Please choose another option.</h2>
+
+        <button class="btn" onclick="window.location.href='/scan_qr_page'">
+            Scan QR
+        </button>
+
+        <button class="btn" onclick="window.location.href='/manual_booking'">
+            Enter Booking ID
+        </button>
+    </div>
+
+</div>
+
+</body>
+</html>

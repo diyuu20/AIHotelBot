@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .guest-card { background-color: rgba(255,255,255,0.1); border: 1px solid #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .guest-card img { max-width: 100%; border-radius: 5px; margin-top: 10px; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1>Guest Found in System</h1>
+            <p>Please confirm that the following details are correct.</p>
+            <div class="guest-card">
+                <h3>{{ guest.name }}</h3>
+                <p><strong>Date of Birth:</strong> {{ guest.dob }}</p>
+                <p><strong>Gender:</strong> {{ guest.gender }}</p>
+                <p><strong>Document Type:</strong> {{ guest.document_type.replace('_', ' ').capitalize() }}</p>
+                <p><strong>Document Number:</strong> {{ guest.document_details.doc_number }}</p>
+                <img src="{{ url_for('static', filename=guest.document_photo_path.replace('\\', '/')) }}" alt="Document Photo">
+            </div>
+            <form action="{{ url_for('select_main_guests', booking_id=booking_id) }}">
+                 <button type="submit" class="action-button">Confirm and Proceed</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

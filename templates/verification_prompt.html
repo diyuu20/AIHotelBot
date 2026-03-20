@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Found</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-red.css') }}">
+</head>
+<body onload="speakMessage()">
+    <video id="speaking-video" class="video-background" loop muted playsinline>
+        <source src="{{ url_for('static', filename='videos/speaking_animation.mp4') }}" type="video/mp4">
+    </video>
+    <div class="background-container">
+        <div class="interaction-container">
+            <h1 id="message-text">{{ result.message }}</h1>
+
+            <!-- --- NEW: Add a more detailed breakdown of the booking --- -->
+            <div style="text-align: left; margin: 20px auto; max-width: 450px; color: white; background-color: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px;">
+                <h4 style="margin-top: 0;">Booking Details:</h4>
+                <p><strong>Room Type:</strong> {{ result.details.type_of_room }}</p>
+                <p><strong>Room View:</strong> {{ result.details.room_facing }}</p>
+                <p><strong>Meal Plan:</strong> {{ result.details.type_of_plan }}</p>
+                <p><strong>Special Request:</strong> {{ result.details.special_request }}</p>
+            </div>
+
+            <div class="options-container">
+                <a href="{{ url_for('guest_details_form', booking_id=result.details.booking_id) }}" class="action-button">Confirm Details & Add Guests</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        function speakMessage() {
+            const messageText = document.getElementById('message-text').innerText;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(messageText);
+                const langCode = "{{ session.get('language', 'en') }}";
+                
+                if (langCode === 'hi') {
+                    utterance.lang = 'hi-IN';
+                } else if (langCode === 'gu') {
+                    utterance.lang = 'gu-IN';
+                } else if (langCode === 'mr') {
+                    utterance.lang = 'mr-IN';
+                } else {
+                    utterance.lang = 'en-US';
+                }
+
+                const video = document.getElementById('speaking-video');
+                utterance.onstart = () => { video.style.display = 'block'; video.play(); };
+                utterance.onend = () => { video.style.display = 'none'; video.pause(); };
+                speechSynthesis.speak(utterance);
+            }
+        }
+    </script>
+</body>
+</html>
